@@ -1,0 +1,213 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (c) 2022 Arseniy Velikanov <adomerlee@gmail.com>
+ */
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+/ {
+    compatible = "mediatek,mt6765";
+    interrupt-parent = <&sysirq>;
+    #address-cells = <2>;
+    #size-cells = <2>;
+
+    psci {
+        compatible = "arm,psci-1.0";
+        method = "smc";
+    };
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        cpu0: cpu@0 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x000>;
+            enable-method = "psci";
+        };
+
+        cpu1: cpu@1 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x001>;
+            enable-method = "psci";
+        };
+
+        cpu2: cpu@2 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x002>;
+            enable-method = "psci";
+        };
+
+        cpu3: cpu@3 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x003>;
+            enable-method = "psci";
+        };
+
+        cpu4: cpu@100 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x100>;
+            enable-method = "psci";
+        };
+
+        cpu5: cpu@101 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x101>;
+            enable-method = "psci";
+        };
+
+        cpu6: cpu@102 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x102>;
+            enable-method = "psci";
+        };
+
+        cpu7: cpu@103 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0x103>;
+            enable-method = "psci";
+        };
+
+        cpu-map {
+            cluster0 {
+                core0 {
+                    cpu = <&cpu0>;
+                };
+                core1 {
+                    cpu = <&cpu1>;
+                };
+                core2 {
+                    cpu = <&cpu2>;
+                };
+                core3 {
+                    cpu = <&cpu3>;
+                };
+            };
+
+            cluster1 {
+                core0 {
+                    cpu = <&cpu4>;
+                };
+                core1 {
+                    cpu = <&cpu5>;
+                };
+                core2 {
+                    cpu = <&cpu6>;
+                };
+                core3 {
+                    cpu = <&cpu7>;
+                };
+            };
+        };
+    };
+
+    chosen {
+        #address-cells = <2>;
+        #size-cells = <2>;
+        ranges;
+
+        /*
+         * Use display framebuffer setup by lk bootloader for simplefb
+         */
+        framebuffer0: framebuffer@5e605000 {
+            compatible = "simple-framebuffer";
+            reg = <0x0 0x7ce70000 0x0 0x00f10000>;
+            status = "disabled";
+            format = "a8r8g8b8";
+        };
+    };
+
+    reserved-memory {
+        #address-cells = <2>;
+        #size-cells = <2>;
+        ranges;
+
+        pstore@54410000 {
+            reg = <0x00 0x54410000 0x00 0xe0000>;
+        };
+
+        ram_console@54400000 {
+            reg = <0x00 0x54400000 0x00 0x10000>;
+        };
+
+        minirdump@544f0000 {
+            reg = <0x00 0x544f0000 0x00 0x10000>;
+        };
+
+        atf@44610000 {
+            no-map;
+            reg = <0x00 0x54600000 0x00 0x50000>;
+        };
+
+
+        scp-share {
+            no-map;
+            size = <0x00 0xd00000>;
+            alignment = <0x00 0x1000000>;
+            alloc-ranges = <0x00 0x40000000 0x00 0x50000000>;
+        };
+
+        soter-shared-mem {
+            no-map;
+            size = <0x00 0x500000>;
+            alloc-ranges = <0x00 0x40000000 0x00 0x50000000>;
+        };
+
+        sspm-share {
+            no-map;
+            size = <0x00 0x110000>;
+            alignment = <0x00 0x10000>;
+            alloc-ranges = <0x00 0x40000000 0x00 0x60000000>;
+        };
+
+        wifi {
+            no-map;
+            size = <0x00 0x300000>;
+            alignment = <0x00 0x1000000>;
+            alloc-ranges = <0x00 0x40000000 0x00 0x80000000>;
+        };
+
+        consys {
+            no-map;
+            size = <0x00 0x400000>;
+            alignment = <0x00 0x1000000>;
+            alloc-ranges = <0x00 0x40000000 0x00 0x80000000>;
+        };
+    };
+
+    timer {
+        compatible = "arm,armv8-timer";
+        interrupt-parent = <&gic>;
+        interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+                     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+                     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+                     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
+    };
+
+    gic: interrupt-controller@0c000000 {
+        compatible = "arm,gic-v3";
+        #interrupt-cells = <3>;
+        interrupt-parent = <&gic>;
+        interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-controller;
+        reg = <0 0x0c000000 0 0x40000>,  /* GICD */
+              <0 0x0c100000 0 0x200000>; /* GICR */
+    };
+
+    sysirq: intpol-controller@10200a80 {
+        compatible = "mediatek,mt6577-sysirq";
+        interrupt-controller;
+        #interrupt-cells = <3>;
+        interrupt-parent = <&gic>;
+        reg = <0 0x10200a80 0 0x50>; /* INTPOL */
+    };
+};
