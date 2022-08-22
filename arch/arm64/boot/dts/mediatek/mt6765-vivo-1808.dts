@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Device Tree Source for Vivo Y81 (vivo 1808)
+ *
+ * Copyright (C) 2022 Arseniy Velikanov <adomerlee@gmail.com>
+ */
+
+/dts-v1/;
+
+#include "mt6765.dtsi"
+
+/ {
+	model = "Vivo Y81";
+	compatible = "vivo,1808", "mediatek,mt6765";
+
+	chosen {
+		stdout-path = &framebuffer0;
+	};
+};
+
+&framebuffer0 {
+	status = "okay";
+	width = <720>;
+	height = <1520>;
+	stride = <((720 + 4) * 4)>;
+};
