@@ -115,10 +115,13 @@
         #size-cells = <2>;
         ranges;
 
+        /* FIXME: without maxcpus=1 the kernel will panic while bringing up the secondary CPUs */
+        bootargs = "maxcpus=1";
+
         /*
          * Use display framebuffer setup by lk bootloader for simplefb
          */
-        framebuffer0: framebuffer@5e605000 {
+        framebuffer0: framebuffer@7ce70000 {
             compatible = "simple-framebuffer";
             reg = <0x0 0x7ce70000 0x0 0x00f10000>;
             status = "disabled";
@@ -196,7 +199,7 @@
     soc {
         memory@40000000 {
             device_type = "memory";
-            reg = <0x0 0x40000000 0x0 0x20000000>;
+            reg = <0x0 0x40000000 0x0 0xc0000000>;
         };
 
 
@@ -207,7 +210,7 @@
             interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
             interrupt-controller;
             reg = <0 0x0c000000 0 0x40000>,  /* GICD */
-                <0 0x0c100000 0 0x200000>; /* GICR */
+                  <0 0x0c100000 0 0x200000>; /* GICR */
         };
 
         sysirq: intpol-controller@10200a80 {
